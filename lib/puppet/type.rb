@@ -958,7 +958,7 @@ class Type
 
     validate do |list|
       list = Array(list)
-      unless list == [:all]
+      unless list == ['all']
         list.each do |param|
           next if @resource.class.validattr?(param)
           fail "Cannot audit #{param}: not a valid attribute for #{resource}"
@@ -982,8 +982,8 @@ class Type
     end
 
     def properties_to_audit(list)
-      if list == :all
-        list = all_properties if list == :all
+      if list == 'all'
+        list = all_properties if list == 'all'
       else
         list = Array(list).collect { |p| p.to_sym }
       end
