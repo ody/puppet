@@ -22,12 +22,17 @@ module Puppet::Provider::Mount
   end
 
   def remount
-    info "Remounting"
-    if resource[:remounts] == :true
-      mountcmd "-o", "remount", resource[:name]
+    if Facter.value(:operatingsystem) == "Solaris" and resource[:name] == "/tmp"
+      info "Solaris does not support the remounting of /tmp"
+      return 0
     else
-      unmount
-      mount
+      info "Remounting"
+      if resource[:remounts] == :true
+        mountcmd "-o", "remount", resource[:name]
+      else
+        unmount
+        mount
+      end
     end
   end
 
