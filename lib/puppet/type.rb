@@ -217,6 +217,15 @@ class Type
     end
   end
 
+  def self.namevar_join(hash)
+    case key_attributes.length
+    when 0; hash[:name]
+    when 1; hash[key_attributes.first]
+    else
+      Puppet.warning('you should specify a joiner when there are two of more key attributes')
+    end
+  end
+
   def uniqueness_key
     self.class.key_attributes.sort_by { |attribute_name| attribute_name.to_s }.map{ |attribute_name| self[attribute_name] }
   end
@@ -883,7 +892,7 @@ class Type
         end
         provider_instances[instance.name] = instance
 
-        result = new(:name => instance.name, :provider => instance)
+        result = new(:title => namevar_join(instance.property_hash), :provider => instance, :audit => :all)
         properties.each { |name| result.newattr(name) }
         result
       end
@@ -906,10 +915,7 @@ class Type
   def self.hash2resource(hash)
     hash = hash.inject({}) { |result, ary| result[ary[0].to_sym] = ary[1]; result }
 
-    title = hash.delete(:title)
-    title ||= hash[:name]
-    title ||= hash[key_attributes.first] if key_attributes.length == 1
-
+    title = hash.delete(:title) || namevar_join(hash)
     raise Puppet::Error, "Title or name must be provided" unless title
 
     # Now create our resource.
@@ -1809,7 +1815,7 @@ class Type
   # For now, leave the 'name' method functioning like it used to.  Once 'title'
   # works everywhere, I'll switch it.
   def name
-    self[:name]
+    self.class.namevar_join(self)
   end
 
   # Look up our parent in the catalog, if we have one.

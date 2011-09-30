@@ -193,7 +193,8 @@ class Puppet::Provider::ParsedFile < Puppet::Provider
       # Skip things like comments and blank lines
       next if skip_record?(record)
 
-      if name = record[:name] and resource = resources[name]
+      namevar = resource_type.namevar_join(record)
+      if resource = resources[namevar]
         resource.provider = new(record)
       elsif respond_to?(:match)
         if resource = match(record, matchers)

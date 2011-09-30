@@ -242,6 +242,8 @@ class Puppet::Provider
     @property_hash[symbolize(param)] || :absent
   end
 
+  attr_reader :property_hash
+
   def initialize(resource = nil)
     if resource.is_a?(Hash)
       # We don't use a duplicate here, because some providers (ParsedFile, at least)
@@ -258,7 +260,7 @@ class Puppet::Provider
   end
 
   def name
-    if n = @property_hash[:name]
+    if n = self.class.resource_type.namevar_join(property_hash)
       return n
     elsif self.resource
       resource.name
