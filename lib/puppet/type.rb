@@ -213,7 +213,7 @@ class Type
       identity = lambda {|x| x}
       [ [ /(.*)/m, [ [key_attributes.first, identity ] ] ] ]
     else
-      raise Puppet::DevError,"you must specify title patterns when there are two or more key attributes"
+      raise Puppet::Error,"you must specify title patterns when there are two or more key attributes"
     end
   end
 
@@ -693,7 +693,7 @@ class Type
     result = Puppet::Resource.new(type, title)
 
     # Provide the name, so we know we'll always refer to a real thing
-    result[:name] = self[:name] unless self[:name] == title
+    result[:name] = self.class.namevar_join(self) unless self[:name] == title
 
     if ensure_prop = property(:ensure) or (self.class.validattr?(:ensure) and ensure_prop = newattr(:ensure))
       result[:ensure] = ensure_state = ensure_prop.retrieve
