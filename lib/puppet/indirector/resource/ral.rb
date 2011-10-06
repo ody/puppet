@@ -1,8 +1,13 @@
 class Puppet::Resource::Ral < Puppet::Indirector::Code
   def find( request )
-    # find by name
+    # find by namevar
     res   = type(request).instances.find { |o| o.name == resource_name(request) }
-    res ||= type(request).new(:name => resource_name(request), :audit => type(request).properties.collect { |s| s.name })
+    case type(request).key_attributes.length
+    when 1;
+      res ||= type(request).new(type(request).key_attributes.first => resource_name(request), :audit => type(request).properties.collect { |s| s.name })
+    else
+      raise Puppet::Error.new("Providers that support types with composite namevars must implement a properly functioning instances and prefetch method")
+    end
 
     res.to_resource
   end
